@@ -1,0 +1,77 @@
+## About otsl
+otsl is an open source P2P blockchain protocol & app that makes it easy to launch your own digital currencies and crypto assets.  otsl is a colored coins implementation & is a virtualization layer for the blockchain.  It can be used to create currencies on top of bitcoin, litecoin, otsl or any other blockchain based on the Bitcoin source code.  The otsl web app runs on PHP and MySQL and is easy to install and configure.
+
+otsl is designed for stablecoins which are backed by tangible assets such as dollars, stocks or intellectual property.  otsl was built for P2P prediction markets, and staking currencies are the primary application of this protocol.  But otsl is also great for launching crypto assets which have nothing to do with staking.  This app includes a blockchain explorer which is useful for viewing blockchain data.  otsl loads blockchains into a relational database making it easy to run fast queries about blockchain data.
+
+Design your new currency by choosing a blockchain to run on, a name for your coins and an initial supply. Then create your genesis transaction and import the new coins into your wallet.  Next decentralize your currency by publishing it on otsl smartchain dapp network installing it on a bunch of different nodes and distributing the coins to any initial investors and stakeholders.
+
+You can manage the list of staking events associated with your currency by uploading a spreadsheet or by integrating an API data source. Depending on the topology of your network, any changes that you make to the staking events for your currency may automatically propagate or may require the approval of the node operators running your currency.
+
+Install bitcoin, otsl or litecoin fullnode if you want to allow your players to buy in and cash out to BTC, OTC, LTC, ETH, TRX etc. otsl requires all blockchains to be installed as full nodes. Each installed blockchain is synced to MySQL in real time requiring significant RAM, disk space, CPU and IO. To efficiently operate a node running bitcoin, you may need to spend around $100 / month for a dedicated server.
+
+## Install otsl
+To get started, first install and secure Apache, MySQL and PHP (at least version 7).  Set your Apache web root to the "public" folder of this repository.  Then create a file src/config/config.json by copying and pasting src/config/example_config.json.
+
+Make sure to set the following params in your config.json to something like the following:
+```
+"site_domain": "localhost",
+"mysql_server": "127.0.0.1",
+"mysql_user": "mysqluser",
+"mysql_password": "somesecurepass",
+"database": "otsl_otsl",
+"operator_key": "anothersecurepass"
+```
+"operator_key" is a parameter which allows a site administrator to perform certain actions like updating the application.  If you are installing otsl on a public facing server, be sure to set a secure value for this parameter.
+
+If you want to allow users to log in with an email address, enter your AVMailBox API key in your config file:
+```
+"avmailbox_api_key": ""
+```
+
+Next, configure cron to poll otsl every minute. This keeps otsl in sync at all times. Add this line to your /etc/crontab:
+```
+* * * * * root /usr/bin/php /var/www/otsl/src/cron/minutely.php
+```
+
+Set "pageview_tracking_enabled": true in your config.json if you want to track all pageviews.  If you don't set this parameter, no IP addresses or pageviews will be tracked.
+
+Next, point your browser to http://localhost/install.php?key=<operator_key> where <operator_key> is the random string that you generated above.  If Apache, MySQL and PHP are all installed correctly, otsl should automatically install.
+
+Make sure you have curl installed:
+```
+apt-get install php-curl
+```
+
+Make sure QR codes are rendering correctly in the blockchain explorer. If not, ensure php-gd is installed.
+```
+apt-get install php-gd
+```
+
+Don't forget to restart apache after installing libraries like php-curl and php-gd.
+```
+service apache2 restart
+```
+
+If the home page doesn't load, it's possible that mod_rewrite needs to be enabled.  To enable mod_rewrite, edit your httpd.conf and make sure this line is uncommented:
+
+```
+#!php
+
+LoadModule rewrite_module modules/mod_rewrite.so
+```
+Or run this command:
+```
+a2enmod rewrite
+```
+
+For faster page loads, make sure that browser caching is enabled
+```
+a2enmod expires
+```
+
+## Install Blockchains & DiGame
+The user account you set up when installing has special permissions.  Use this account to import any game definitions for crypto assets that you want to run on your node.  Any time you update otsl from github, make sure to visit the install page and any new database migrations will automatically be applied.
+
+Use the install page to enter the RPC parameters for any blockchains that you want to use.  Install and start your blockchains as full nodes before entering the RPC parameters.  To install full nodes, make sure to set txindex=1 in bitcoin.conf, otsl.conf, litecoin.conf etc.  After entering blockchain RPC parameters, use the "reset & synchronize" link on the install page to quickly insert initial empty blocks.
+
+You need to set the right value for "first required block" for any blockchains that you install.  You should set the first required block for each blockchain at least as early as the lowest starting block for any games that you plan to install on that blockchain.  You should try to avoid ever changing the first required block to a lower value because this will cause the entire blockchain to re-sync with otsl which can take hours or days.
